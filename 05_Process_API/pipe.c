@@ -19,7 +19,7 @@ int main() {
         close(pipefd[0]);  // Don't need read end
         //close(pipefd[0]) closes fd 6 in the child's fd table only. The parent still has fd 6 open. Now child 1 only has the write end (fd 7).
 
-        dup2(pipefd[1], STDOUT_FILENO);  
+        dup2(pipefd[1], STDOUT_FILENO);  // This changes stdout's file descriptor, ie, 1, to point to pipefd[1], which is the write end of the pipe that was created by the kernel. so now, in fd table, 1 -> write end of pipe, 7 -> write end of file.
 
         close(pipefd[1]);
 
@@ -35,7 +35,7 @@ int main() {
 
         close(pipefd[1]);  // Don't need write end
 
-        dup2(pipefd[0], STDIN_FILENO);
+        dup2(pipefd[0], STDIN_FILENO); 
         close(pipefd[0]);
 
         char buffer[100];

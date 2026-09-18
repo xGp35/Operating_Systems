@@ -11,7 +11,8 @@ int main(int argc, char *argv[]) {
     int mb = atoi(argv[1]);
 
     // Allocate the requested amount of memory.
-    int *array = malloc(mb * 1024 * 1024);
+    size_t bytes = (size_t)mb * 1024 * 1024;
+    int *array = malloc(bytes);
 
     if (array == NULL) {
         perror("malloc");

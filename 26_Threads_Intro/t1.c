@@ -21,6 +21,7 @@ void *mythread(void *arg) {
     }
     printf("%s: done\n", (char *) arg);
     return NULL; // Why return NULL instead of 0 or 1?
+    // Ans - Because the function's return type is void *, not int. Actually 0 would work, details below
 }
 
 // main()
@@ -47,4 +48,7 @@ main could reach return 0; and exit before the threads finish.
 When the process exits, all threads are killed.
 So you’d often see counter much less than the expected value, because the worker threads might still be in the middle of their loops when the process dies.
 That’s why you must keep the Pthread_join calls (to wait for the threads), and you pass NULL because you don’t care about their return values.
+*/
+/*
+Why 0 could work as return type in mythread function: Actually, return 0; here would compile and behave identically to return NULL;. That's a quirk of C: the literal 0 is specifically recognized by the standard as a "null pointer constant," so in a context expecting a pointer, 0 silently converts to a null pointer — no cast, no warning. But it's misleading to read: seeing return 0; in a function whose signature is void * doesn't visually cue you that you're looking at a pointer-returning function. NULL (typically #define NULL ((void*)0) or just 0 depending on the header, but documented as the null-pointer macro) signals intent immediately: "this thread has no payload to hand back to whoever calls pthread_join."
 */

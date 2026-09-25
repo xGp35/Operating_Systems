@@ -33,8 +33,18 @@ int main(int argc, char *argv[]){
     Pthread_create(&p2, NULL, mythread, "B");
 
     //join waits for the threads to finish
-    Pthread_join(p1, NULL); // why is the second parameter NULL, what would have happened if I hadn't added this line
+    Pthread_join(p1, NULL); // why is the second parameter NULL, what would have happened if I hadn't added this line?
+    // 2nd parameter gives-> where to store that thread’s return value (void **retval)
     Pthread_join(p2, NULL);
     printf("main: done with both (counter = %d)\n", counter);
     return 0;
 }
+/*
+If you removed the whole Pthread_join line
+If you didn’t call Pthread_join at all:
+
+main could reach return 0; and exit before the threads finish.
+When the process exits, all threads are killed.
+So you’d often see counter much less than the expected value, because the worker threads might still be in the middle of their loops when the process dies.
+That’s why you must keep the Pthread_join calls (to wait for the threads), and you pass NULL because you don’t care about their return values.
+*/

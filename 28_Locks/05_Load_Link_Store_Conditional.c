@@ -16,7 +16,7 @@ int LoadLinked(int *ptr) {
 }
 
 int StoreConditional(int *ptr, int value) {
-    if (no update to *ptr since LL to this addr) { //nothing you can actually write in C goes there — that line is pseudocode standing in for a hardware guarantee that plain C can't express
+    if ("no update to *ptr since LL to this addr") { //nothing you can actually write in C goes there — that line is pseudocode standing in for a hardware guarantee that plain C can't express
         *ptr = value;
         return 1;  // success !
     } else {

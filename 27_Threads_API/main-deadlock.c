@@ -26,3 +26,8 @@ int main(int argc, char *argv[]) {
     Pthread_join(p2, NULL);
     return 0;
 }
+
+// 2 threads, 2 mutexes are the simplest common example of a deadlock.
+// 🚨 To create a deadlock the locks must be acquired in a different order.
+// if p1 -> m1, m2, then p2 -> m1, m2 => No deadlock.
+// only if p1 -> m1, m2 but p2-> m2,m1, then deadlock will happen.

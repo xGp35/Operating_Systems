@@ -15,15 +15,28 @@ typedef struct __synchronizer_t {
     pthread_cond_t cond;
     int done;
 } synchronizer_t;
+//If you wanted a second, unrelated producer/consumer pair to synchronize somewhere else in the same program, you'd need a second global variable, and a second lock, and you'd have to remember by convention which lock goes with which variable. Nothing in the code enforces that pairing — it lives only in the programmer's head and in comments.
+
+//With synchronizer_t, the lock, the condition variable, and the data they protect are bundled into one unit that gets passed around by pointer:
+
 
 synchronizer_t s;
 
-void signal_init(synchronizer_t *s) {
+// Signal initializer
+void signal_init(synchronizer_t* s) {
     Pthread_mutex_init(&s->lock, NULL);
     Pthread_cond_init(&s->cond, NULL);
     s->done = 0;
 }
 
+// Signal destroyer
+void signal_destroy(synchronizer_t *s) {
+    Pthread_mutex_destroy(&s->lock);
+    Pthread_cond_destroy(&s->cond);
+}
+
+
+// Signaller block
 void signal_done(synchronizer_t *s) {
     Pthread_mutex_lock(&s->lock);
     s->done = 1;
@@ -33,7 +46,7 @@ void signal_done(synchronizer_t *s) {
 
 void signal_wait(synchronizer_t *s) {
     Pthread_mutex_lock(&s->lock);
-    while (s->done == 0)
+    while (s->done == 0) // The braces are optional when the body of a while loop contains exactly one statement.
 	Pthread_cond_wait(&s->cond, &s->lock);
     Pthread_mutex_unlock(&s->lock);
 }
@@ -49,6 +62,8 @@ int main(int argc, char *argv[]) {
     signal_init(&s);
     Pthread_create(&p, NULL, worker, NULL);
     signal_wait(&s);
+    Pthread_join(p, NULL);      // missing
+    signal_destroy(&s);         // was also missing
     printf("this should print last\n");
 
     return 0;

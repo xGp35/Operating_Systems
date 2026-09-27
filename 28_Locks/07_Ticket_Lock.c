@@ -49,3 +49,11 @@ void unlock(lock_t *mutex) {
 // First Thread to ask for lock say Thread 1, gets myturn = 0. when it unlocks, it sets mutex->turn to 1
 // Thread 2 gets myturn = 1, when it unlocks, it sets mutex->turn to 2
 // Thread 3 gets myturn = 2, when it unlocks, it sets mutex->turn to 3
+
+// next time if Thread 1 wants to run again, it will get a different value of myturn. say after Thread 2 has compeleted execution and Thread 3 is mid execution. Then current value of mutex->turn is 2. When Thread 1 runs >lock(&mutex), its myturn will be calculated now. before the FetchAndAdd runs, the value in mutex->ticket is 3.
+// Why? you may ask - see this. initially it was 0. T1 asked for myturn, it got 0, mutex->ticket increased to 1. Then T2 asked for myturn, it got 1, mutex->ticket increased to 2. Then T3 asked for myturn, it got 2, mutex->ticket increased to 3.
+//  So, when FetchAndAdd runs now, mutex->ticket increases to 4, but the FetchAndAdd call returns the old value, i.e, 3. So myturn for T1 now is 3. turn is still 2.
+// Why? you may ask - When T1 released the lock mutex->turn increased to 1 from 0, when T2 released the lock mutex->turn increased to 2 from 1. T3 is running and is yet to release. So mutex->turn is 2.
+
+// Now, with the myturnvalue T1 got (3), it does the while loop check
+// while(mutex->turn != myturn), while (2 != 3) -> loop condition met. So, T1 goes an spin-waits.

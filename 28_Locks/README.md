@@ -301,6 +301,11 @@ xchg register, memory       # atomic exchange:
                             #   return old contents of memory into reg
                             # do both things atomically
 
+fetchadd register, memory   # FetchAndAdd 
+                            # Add value of register to memory (usually value in reg is 1)
+                            # return old content of memory to reg
+                            # do both atomically
+
 yield                       # switch to the next thread in the runqueue
 
 nop                         # no op

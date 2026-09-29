@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <assert.h>
 #include "common_threads.h"
 
 int buffer;
@@ -12,12 +13,12 @@ void put (int value) {
     buffer = value;
 }
 
-void get() {
+int get() {
     assert(count == 1); 
     count = 0;
     return buffer;
 }
-
+// Very wrong, can cause a lot of problems
 void* producer(void* arg) {
     int i;
     int loops = (int) arg;

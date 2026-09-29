@@ -55,10 +55,9 @@ def plot_comparison():
     """Plot A: Simple counter vs approximate counter at various thresholds."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
-    # Style definitions
+    # Style definitions (S=1 omitted — its high values compress the other lines)
     styles = [
         {"label": "Simple counter",  "marker": "o", "color": "#E53935", "ls": "-",  "lw": 2.5, "ms": 9, "zorder": 10},
-        {"label": "Approx S=1",      "marker": "x", "color": "#9E9E9E", "ls": ":",  "lw": 1.5, "ms": 7, "zorder": 5},
         {"label": "Approx S=10",     "marker": "v", "color": "#FF9800", "ls": "--", "lw": 2,   "ms": 7, "zorder": 5},
         {"label": "Approx S=64",     "marker": "^", "color": "#2196F3", "ls": "-.", "lw": 2,   "ms": 7, "zorder": 5},
         {"label": "Approx S=512",    "marker": "s", "color": "#4CAF50", "ls": "--", "lw": 2,   "ms": 7, "zorder": 5},
@@ -67,7 +66,6 @@ def plot_comparison():
 
     files = [
         f"{RESULTS_DIR}/counter_results.csv",
-        f"{RESULTS_DIR}/approx_S1_results.csv",
         f"{RESULTS_DIR}/approx_S10_results.csv",
         f"{RESULTS_DIR}/approx_S64_results.csv",
         f"{RESULTS_DIR}/approx_S512_results.csv",

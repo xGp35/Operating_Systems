@@ -19,7 +19,8 @@ pthread_mutex_t m     = PTHREAD_MUTEX_INITIALIZER;
 
 void do_fill(int value) {
     // ensure empty before usage
-    ensure(buffer[fill_ptr] == EMPTY, "error: tried to fill a non-empty buffer");
+    ensure(buffer[fill_ptr] == EMPTY, "error: tried to fill a non-empty buffer"); 
+    // This is not checking whether the entire buffer is empty. It's checking whether the specific slot at fill_ptr is empty. "Ensure" prints the error message if the condition evaluated to False. If there is no free space available, then it will print the error message. And we need it to be empty because this is the producer. Got it
     buffer[fill_ptr] = value;
     fill_ptr = (fill_ptr + 1) % max;
     num_full++;
@@ -35,34 +36,34 @@ int do_get() {
 }
 
 void *producer(void *arg) {
-    int id = *(int *) arg;
+    int id = (int)(long long) arg;
     // make sure each producer produces unique values
     int base = id * loops; 
     int i;
     for (i = 0; i < loops; i++) {   p0;
-	Mutex_lock(&m);             p1;
-	if (num_full == max) {      p2;
-	    Cond_wait(&empty, &m);  p3;
-	}
-	do_fill(base + i);          p4;
-	Cond_signal(&fill);         p5;
-	Mutex_unlock(&m);           p6;
+        Mutex_lock(&m);             p1;
+        if (num_full == max) {      p2;
+            Cond_wait(&empty, &m);  p3;
+        }
+        do_fill(base + i);          p4;
+        Cond_signal(&fill);         p5;
+        Mutex_unlock(&m);           p6;
     }
     return NULL;
 }
                                                                                
 void *consumer(void *arg) {
-    int id = *(int *) arg;
+    int id = (int)(long long) arg;
     int tmp = 0;
     int consumed_count = 0;
     while (tmp != END_OF_STREAM) { c0;
-	Mutex_lock(&m);            c1;
-	if (num_full == 0) {       c2;
-	    Cond_wait(&fill, &m);  c3;
-        }
-	tmp = do_get();            c4;
-	Cond_signal(&empty);       c5;
-	Mutex_unlock(&m);          c6;
+        Mutex_lock(&m);            c1;
+        if (num_full == 0) {       c2;
+            Cond_wait(&fill, &m);  c3;
+            }
+        tmp = do_get();            c4;
+        Cond_signal(&empty);       c5;
+        Mutex_unlock(&m);          c6;
 	consumed_count++;
     }
 

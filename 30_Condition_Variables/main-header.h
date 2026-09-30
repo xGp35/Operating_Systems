@@ -110,7 +110,7 @@ void do_pause(int thread_id, int is_producer, int pause_slot, char *str) {
 }
 
 void ensure(int expression, char *msg) {
-    if (expression == 0) {
+    if (expression == 0) { // If the condition (expression) is false, print the error message.
 	fprintf(stderr, "%s\n", msg);
 	exit(1);
     }

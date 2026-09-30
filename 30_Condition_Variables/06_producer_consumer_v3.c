@@ -42,7 +42,7 @@ void* consumer(void* arg) {
 }
 // Hoare sematics gave stronger gurantee, but no one uses it. This basically said, woken thread will be made to run immediately. Hard to implement.
 
-// Problem of v3. We are using a single condition variable. This can cause issues when C1 runs, goes to wait, c2 runs goes to wait. Then producer produces, wakes up C1. C1 consumes. Then wakes up C2 (which was next in queue. only woken not scheduled). Then C1 tries consuming again. Sees empty buffer (count = 0), goes to sleep. C2 gets scheduled.It will see count = 0 as C1 consumed the produced value. It will sleep. All 3 are sleeping. SAD !!
+// Problem of v3. We are using a single condition variable. This can cause issues when C1 runs, goes to wait, c2 runs goes to wait. Then producer produces, wakes up C1. C1 consumes. Then C1 signals. This signal wakes up C2 (which was next in queue. only woken not scheduled). Then C1 tries consuming again. Sees empty buffer (count = 0), goes to sleep. C2 gets scheduled.It will see count = 0 as C1 consumed the produced value. It will sleep. All 3 are sleeping. SAD !!
 // We need more directed conditional variables. 
 // Consumers should not wake up other consumers. It should only wake up producer. Vice versa.
 

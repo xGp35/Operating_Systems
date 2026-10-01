@@ -78,3 +78,45 @@ pthread_cond_t *empty_cv = &cv;
 // and all the other related stuff
 #include "main-common.c"
 
+/*
+No worries, let me continue. Let me first re-read the one-cv-while code to reason precisely:
+
+OK, let me think through this carefully. The key issue with `main-one-cv-while.c` is that **everyone signals the same CV**. The classic deadlock is:
+
+## The deadlock scenario you want
+
+1. CT1 and CT2 both in `Cond_wait` (buffer empty)
+2. Producer fills, signals CV → wakes CT1
+3. **Producer wins the mutex race**, re-acquires mutex before CT1, sees `num_full == max` → enters `Cond_wait`
+4. CT1 gets mutex (producer's Cond_wait released it), consumes, signals CV
+5. Signal wakes **CT2 instead of producer** (both on same CV)
+6. CT2 checks `while(num_full == 0)` → TRUE → goes back to `Cond_wait`
+7. CT1 loops, finds buffer empty → enters `Cond_wait`
+8. All three threads in `Cond_wait`. **DEADLOCK.**
+
+## Why your `-P 0,0,0,0,0,0,3` hurts rather than helps
+
+The p6 sleep of 3 seconds happens **after** the producer unlocks. During those 3 seconds, the consumer easily consumes and the buffer becomes empty. When the producer wakes and loops back, it finds `num_full = 0`, fills immediately, and **never enters Cond_wait**. You've eliminated step 3 -- the producer never gets stuck.
+
+The deadlock only happens late (by luck) when the scheduling stars eventually align despite the p6 sleep working against you.
+
+## The core problem
+
+Step 3 requires the **producer to win the mutex race** after p6 (unlock). But the woken consumer (CT1) is also trying to re-acquire the mutex from `Cond_wait`. On most systems, the signaled thread gets priority for the mutex. No sleep parameter can control this race because:
+
+- Any producer sleep after unlock (p6) makes the producer **slower** → loses the race
+- Any consumer sleep at c3 holds the **mutex** → producer can't enter Cond_wait during it
+- Sleeps at c0/c6 are outside the critical window
+
+## What would maximize your chances
+
+Ironically, **no sleep at all** gives the best odds:
+
+```
+./main-one-cv-while.out -l 10 -m 1 -p 1 -c 2 -v -t
+```
+
+Run it many times. The producer sometimes wins the mutex race by sheer scheduling luck. On macOS with its bursty scheduler, the producer (currently running) is more likely to keep the CPU and loop back to `Mutex_lock` before the woken consumer gets scheduled. On Linux with EEVDF, the woken consumer almost always gets priority, making the deadlock much rarer.
+
+The uncomfortable truth: this deadlock is **genuinely non-deterministic**. Sleep parameters can set up the initial conditions (both consumers in Cond_wait) but can't control the two critical coin flips: who wins the mutex race, and which thread gets woken by the signal.
+*/

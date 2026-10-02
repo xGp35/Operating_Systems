@@ -37,8 +37,10 @@ void barrier_wait(barrier_t *b) { // barrier_wait
     sem_wait(&b->mutex); // This is the counter mutex. Used for mutual exclusive increase in counter, so that 2 threads don't scribble ove the counter (b->count)
     b->count++;
     if (b->count == b->N) {
-        for (int i = 0; i < b->N; i++) // In C I can't directly set the value of the semaphore to N, so I loop here to increase the value till N
-            sem_post(b->turnstile1);
+        for (int i = 0; i < b->N; i++) {// In C I can't directly set the value of the semaphore to N, so I loop here to increase the value till N
+            sem_post(&b->turnstile1);
+        }
+    }
     sem_post(&b->mutex);  // release the count mutex
     sem_wait(&b->turnstile1); // This is the gate where each Thread waits in the First phase till all of its peers have arrived. Once all have arrived, the last arriving peer increases the tokens at this tunstile by N, which enables all of the waiting threads to pass through this turnstile.
 

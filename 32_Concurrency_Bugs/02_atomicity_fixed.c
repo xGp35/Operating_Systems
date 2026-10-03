@@ -45,8 +45,8 @@ void *thread2(void *arg) {
 
 int main(int argc, char *argv[]) {                    
     if (argc != 1) {
-	fprintf(stderr, "usage: main\n");
-	exit(1);
+        fprintf(stderr, "usage: main\n");
+        exit(1);
     }
     thread_info_t t;
     p.pid = 100;

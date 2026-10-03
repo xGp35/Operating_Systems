@@ -10,12 +10,9 @@
 #include "vector-header.h"
 
 // taken from https://en.wikipedia.org/wiki/Fetch-and-add
-int fetch_and_add(int * variable, int value) {
-    asm volatile("lock; xaddl %%eax, %2;"
-		 :"=a" (value)                  
-		 :"a" (value), "m" (*variable)  
-		 :"memory");
-    return value;
+// using GCC/Clang built-in for portability (original x86 asm doesn't work on ARM64)
+int fetch_and_add(int *variable, int value) {
+    return __sync_fetch_and_add(variable, value);
 }
 
 void vector_add(vector_t *v_dst, vector_t *v_src) {

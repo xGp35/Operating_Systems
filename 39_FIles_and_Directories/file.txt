@@ -1,0 +1,7 @@
+2. Better diagnostics than assert — assert tells you the check failed but not why. For I/O, perror shows the actual reason:
+
+     int fd = open("file.txt", O_RDONLY);
+     if (fd < 0) {
+         perror("open");
+         exit(1);
+     }

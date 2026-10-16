@@ -5,7 +5,7 @@ This homework introduces `fsck.py`, a simple file system simulator. Some
 familiarity with the `vsfs.py` simulator (described in an earlier chapter on
 file system implementation) would be useful, but is not necessary.
 
-The file system the tool changes the on-disk state of the file system, and
+The `file system tool` changes the on-disk state of the file system, and
 then leaves it to you, the user, to detect the problem, much like a file
 system consistency checker would do (e.g., fsck). The file system itself is
 based on a simplified VSFS, the very simple file system described in an
